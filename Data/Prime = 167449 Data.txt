@@ -1,0 +1,1 @@
+{'prime': 167449, 'max_error': 27.740150861954447, 'max_neg_error': -27.7850848332816, 'x_max_error': [60532], 'x_max_neg_error': [106914]}
