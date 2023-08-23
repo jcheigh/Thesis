@@ -195,7 +195,6 @@ def update_lst(p: int):
                 elems = txt_file.read().splitlines()
                 x_min = len(elems) + 1
                 elems_left = p - x_min
-                print('hey')
                 if elems_left <= 150000:
                     actual = S(p, x_min = x_min, x_max = p)
                     fourier = Fourier_Expansion(p, x_min = x_min, x_max = p)
@@ -266,4 +265,4 @@ def add_data(p: int):
 
 if __name__ == "__main__":
     large_prime = 1000003
-    update_lst(large_prime)
+    add_data(large_prime)
