@@ -1,10 +1,11 @@
 import os 
 import csv
-from sage.all import *
+from sage.all import kronecker, Primes, sin, cos, floor, pi, ln
 import numpy as np
-import matplotlib.pyplot as plt 
+import matplotlib.pyplot as plt
 import random
 from tqdm import tqdm
+import time
 
 def legendre(a: int, p: int) -> int:
     """
@@ -36,31 +37,24 @@ def get_range(p: int) -> int:
         
     return n
 
-def get_range(p: int) -> int:
+def is_prime(n: int) -> bool:
     """
-    Returns k iff p is the kth prime
+    Returns True if n is a prime number, else False, using the primes function
     """
-    # Initial bounds for binary search
-    low = 0
-    high = 1
+    if n < 2:
+        return False
+    limit = int(n**0.5)
     
-    # Increase the upper bound until the prime at that position is greater than p
-    while primes(high) < p:
-        high *= 2
-
-    while low <= high:
-        mid = (low + high) // 2
-        prime_at_mid = primes(mid)
+    k = 0
+    while True:
+        prime_k = primes(k)
+        if prime_k > limit:
+            break
+        if n % prime_k == 0:
+            return False
+        k += 1
         
-        if prime_at_mid < p:
-            low = mid + 1
-        elif prime_at_mid > p:
-            high = mid - 1
-        else:
-            return mid
-    
-    raise ValueError(f"{p} is not a prime as per the given primes function.")
-
+    return True
 
 def get_prime_range(p_min: int, p_max: int) -> list:
     """
@@ -87,13 +81,13 @@ def sample_primes(n: int, p_min: int = 100000, p_max: int = 200000):
         print(f"You can't sample more than {len(prime_list)}")
 
 
-def S(p: int, x_min: int = 1, x_max: int = None) -> list:
+def S(p: int, x_min: int = 0, x_max: int = None) -> list:
     """
     Returns [S_p(x_min), ..., S_p(x_max)], where S_p(x) is character sum of legendre symbol
 
     Defaults:
-        x_min = 1
-        x_max = p
+        x_min = 0
+        x_max = p - 1
         
     S_p(x) := sum(legendre(a, p) for a in range(1, x + 1)) 
 
@@ -102,7 +96,7 @@ def S(p: int, x_min: int = 1, x_max: int = None) -> list:
         Recurrence Relation: S_p(x) = S_p(x-1) + legendre(x, p)  
     """
     if x_max is None:
-        x_max = p 
+        x_max = p - 1
 
     first_val = sum([legendre(a, p) for a in range(1, x_min + 1)]) 
     result = [first_val] 
@@ -123,27 +117,27 @@ def T(x: int, p: int) -> float:
     """
     return sin(x) if p % 4 == 1 else 1 - cos(x) # if p % 4 == 3
     
-def Fourier_Expansion(p: int, x_min: int = 1, x_max = None, H = None) -> list:
+def Fourier_Expansion(p: int, x_min: int = 0, x_max = None, H = None) -> list:
     """
     Returns [S_p(x_min),...,S_p(x_max)], where S_p(x) is main term of Polya's 
     Fourier Expansion with H = H
 
     Defaults:
-        x_min = 1
-        x_max = p
+        x_min = 0
+        x_max = p - 1
         H     = floor(ln(p)^2)
 
     Uses Leo's idea of pairing up sums (S_p(-x) + S_p(x))
     Derivation in Justin Cheigh's .tex documentation 
     """
     if x_max is None:
-        x_max = p
+        x_max = p - 1
     
     if H is None:
         H = floor((ln(p)) ** 2)
         
     result = [] 
-    C = sqrt(p) / pi
+    C = np.sqrt(p) / pi
     
     for x in range(x_min, x_max + 1):
         exp = 2 * pi * x / p
@@ -151,7 +145,6 @@ def Fourier_Expansion(p: int, x_min: int = 1, x_max = None, H = None) -> list:
         result.append(main_term.n())             
         
     return result       
-
 
 def get_data(p: int, diff: np.array):
     ### writing data to csv file
@@ -290,5 +283,5 @@ def add_data(p: int):
         get_data(p, diff)
 
 if __name__ == "__main__":
-    large_prime = 1000003
-    add_data(large_prime)
+    print(is_prime(10000))
+    print(is_prime(10007))

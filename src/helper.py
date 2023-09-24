@@ -1,6 +1,6 @@
 import os 
 import csv
-from sage.all import *
+from sage.all import kronecker, Primes, floor, pi, sin, cos, ln
 import numpy as np
 import matplotlib.pyplot as plt 
 import random
@@ -117,7 +117,7 @@ def Fourier_Expansion(p: int, x_min: int = 1, x_max = None, H = None) -> list:
         H = floor((ln(p)) ** 2)
         
     result = [] 
-    C = sqrt(p) / pi
+    C = np.sqrt(p) / pi
     
     for x in range(x_min, x_max + 1):
         exp = 2 * pi * x / p

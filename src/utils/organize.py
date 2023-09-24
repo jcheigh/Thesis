@@ -29,5 +29,23 @@ def rename_plots(path: str) -> None:
     return f"Renaming process in {path} completed."
 
 # Assuming a sample path variable (you can replace this with your actual path)
-path = os.path.join(DATA_PATH, 'error lists')
-rename_plots(path)
+#path = os.path.join(DATA_PATH, 'error lists')
+#rename_plots(path)
+
+def reorder_txt_files(path):
+    # Loop through all files in the directory
+    for filename in os.listdir(path):
+        # Check if the file has a .txt extension
+        if filename.endswith(".txt"):
+            filepath = os.path.join(path, filename)
+            
+            # Read the numbers from the file into a list
+            with open(filepath, 'r') as file:
+                numbers = file.readlines()
+            
+            # Move the last number to the first position
+            numbers.insert(0, numbers.pop())
+            
+            # Write the reordered list back to the file
+            with open(filepath, 'w') as file:
+                file.writelines(numbers)
