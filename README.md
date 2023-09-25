@@ -12,7 +12,6 @@ This repository contains computational work surrounding my undergraduate thesis 
 
 ### Current To Do:
 
-Error Lists: change to not be 1-indexed
 Break results into various results 
 Build out and test experiment.py, analysis.py, math.py, organize.py
 Update README
