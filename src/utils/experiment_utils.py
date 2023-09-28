@@ -4,6 +4,7 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from multiprocessing import Pool
 import os
+from tqdm import tqdm
 import time
 
 MAIN_PATH = os.path.join("/Users", "jcheigh", "Thesis")
@@ -75,7 +76,7 @@ class Config:
     """
     Configuration for each Experiment
         run_instance is a Run object that can run a given experiment 
-        inputs is a list of input to call the experiment on 
+        inputs is a list of input to call the experiment on ([{'n':100},...])
         time_experiment is whether or not to call
     """
     def __init__(self, run_instance: Run, inputs: List[Dict[str, Any]], time_experiment: bool = False):
@@ -121,11 +122,13 @@ class Experiment:
         except Exception as e:
             return f"Error running experiment for input {input_kwargs}: {str(e)}"
         
-    def run(self):
-        # Use multiprocessing Pool to parallelize the experiments
-        with Pool(processes=min(6, len(self.config.inputs))) as pool:
-            results = pool.map(self._run_single_experiment, self.config.inputs)
-            
-        # Print results after all experiments are done
-        for result in results:
-            print(result)
+    def run(self, multithread=True):
+        if multithread:
+            print(f'=== Using Multiprocessing ===')
+            # Use multiprocessing Pool to parallelize the experiments
+            with Pool(processes=min(6, len(self.config.inputs))) as pool:
+                results = pool.map(self._run_single_experiment, self.config.inputs)
+        else:
+            print(f'=== Not Using Multiprocessing ===')
+            for input_kwargs in tqdm(self.config.inputs):
+                self._run_single_experiment(input_kwargs)

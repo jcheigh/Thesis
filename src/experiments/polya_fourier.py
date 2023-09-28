@@ -13,7 +13,7 @@ from utils.math_utils import Fourier_Expansion, is_prime, sample_primes
 
 MAIN_PATH = os.path.join("/Users", "jcheigh", "Thesis")
 DATA_PATH = os.path.join(MAIN_PATH, "data")
-
+PLOT_PATH = os.path.join(MAIN_PATH, "plots")
 class PolyaFourier(Run):
     path = f"{DATA_PATH}/polya fourier lists/"
     name = lambda self, **kwargs: f"p = {kwargs['p']} fourier exp list"
@@ -53,28 +53,27 @@ def get_primes_from_filename(path):
             primes.append(prime)
     return primes
 
-def filter_primes(path, path2):
-    primes = get_primes_from_filename(path)
+def filter_primes():
+    char_sum_path = f"{DATA_PATH}/char sum lists/"
+    error_plot_path = f"{PLOT_PATH}/error plots/"
+    primes = get_primes_from_filename(char_sum_path)
     
     for prime in primes.copy():  # iterate over a copy of the list so we can modify the original list
-        filename_to_check = f"p = {prime} fourier exp list.txt"
-        if filename_to_check in os.listdir(path2):
+        filename_to_check = f"p = {prime} error plot.png"
+        if filename_to_check in os.listdir(error_plot_path):
             primes.remove(prime)
     return primes
 
-def get_random_primes(path, path2, n):
-    filtered_primes = filter_primes(path, path2)
+def get_random_primes(n):
+    filtered_primes = filter_primes()
     return random.sample(filtered_primes, n)
 
 if __name__ == "__main__":
-    path = f"{DATA_PATH}/char sum lists/"
-    path2 = f"{DATA_PATH}/polya fourier lists/"
-    primes = get_random_primes(path, path2, 6)
-    print(primes)
+    primes = get_random_primes(6)
     config = Config(
             run_instance    = PolyaFourier(),
             inputs          = [{"p" : p} for p in primes],
             time_experiment = True
             )
     experiment = Experiment(config)
-    experiment.run()
+    experiment.run(multithread=False)

@@ -2,6 +2,7 @@
 
 import os 
 import re 
+from PIL import Image
 
 MAIN_PATH = os.path.join("/Users", "jcheigh", "Thesis")
 DATA_PATH = os.path.join(MAIN_PATH, "data")
@@ -49,3 +50,21 @@ def reorder_txt_files(path):
             # Write the reordered list back to the file
             with open(filepath, 'w') as file:
                 file.writelines(numbers)
+
+def png_to_jpg(path):
+    # changing png to jpg for error plots
+    # Loop through all files in the folder
+    for filename in os.listdir(path):
+        if filename.endswith('.png'):
+            # Open the image using PIL
+            with Image.open(os.path.join(path, filename)) as im:
+                # Convert the image to RGB (JPEG doesn't support alpha channel)
+                rgb_im = im.convert('RGB')
+                # Save the image with .jpg extension
+                rgb_im.save(os.path.join(path, filename[:-4] + '.jpg'))
+            # Optionally, delete the original .png file
+            os.remove(os.path.join(path, filename))
+    
+if __name__ == "__main__":
+    error_plot_path = f"{PLOT_PATH}/error plots/"
+    png_to_jpg(error_plot_path)
