@@ -20,17 +20,9 @@ is steamlined in this repo. Here's the general pipeline:
     - The default is to use python multiprocessing to spread across multiple cores 
     - There's auto saving and auto input valiation if you create the subclass correctly 
 
-(2) Analyis:
+(2) Analysis:
     - Given this generated experiment data we need to analyze the data. There's a starter notebook src/analysis/analysis.ipynb
     that makes a lot of this easy. It provides functionality to easily fetch_data(experiment) and has lot of plotting functionality. Additionally, there is a Saver class that abstracts away saving new data. 
 
 (3) Results:
     - Once you do this analysis of your data you may want to create a nice looking report to showcase the results. There's a basic starter notebook, but most of this is dependent on the actual analysis.
-
----
-### Repo Layout
-
-├── README.md                              <- Project description/relevant links
-├── src/                                   <- Main Codebase
-├── plots/                                 <- Saved Plots
-├── data/                                  <- Saved Data
