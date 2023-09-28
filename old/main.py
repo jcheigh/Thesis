@@ -1,7 +1,7 @@
 from tqdm import tqdm
 import multiprocessing
 import os
-from helper import add_data, sample_primes
+from old.helper import add_data, sample_primes
 
 def process_primes(primes: list):
     """
