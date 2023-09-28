@@ -69,7 +69,7 @@ def get_random_primes(path, path2, n):
 if __name__ == "__main__":
     path = f"{DATA_PATH}/char sum lists/"
     path2 = f"{DATA_PATH}/polya fourier lists/"
-    primes = get_random_primes(path, path2, 4)
+    primes = get_random_primes(path, path2, 6)
     print(primes)
     config = Config(
             run_instance    = PolyaFourier(),

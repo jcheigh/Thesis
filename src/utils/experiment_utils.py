@@ -2,6 +2,7 @@
 from typing import List, Callable, Dict, Any, Union
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
+from multiprocessing import Pool
 import os
 import time
 
@@ -90,7 +91,7 @@ class Config:
             raise ValueError("inputs must be a list of dictionaries.")
         if not isinstance(time_experiment, bool):
             raise ValueError("time_experiment must be a boolean value.")
-            
+
 class Experiment:
     """
     Experiment runs an experiment to take a bunch of inputs and generate data from it 
@@ -104,20 +105,27 @@ class Experiment:
     def __init__(self, config: Config):
         self.config = config
         
+    def _run_single_experiment(self, input_kwargs):
+        """Runs a single experiment based on input_kwargs."""
+        print(f'Running experiment on {input_kwargs}')
+        try:
+            start_time = time.time() if self.config.time_experiment else None
+                
+            # Calling the execute method of the run_instance
+            self.config.run_instance.execute(**input_kwargs)
+                
+            if self.config.time_experiment:
+                elapsed_time = time.time() - start_time
+                return f"Experiment completed in {elapsed_time:.2f} seconds for input {input_kwargs}."
+                
+        except Exception as e:
+            return f"Error running experiment for input {input_kwargs}: {str(e)}"
+        
     def run(self):
-        for input_kwargs in self.config.inputs:
-            try:
-                start_time = time.time() if self.config.time_experiment else None
-                
-                # Calling the execute method of the run_instance
-                self.config.run_instance.execute(**input_kwargs)
-                
-                if self.config.time_experiment:
-                    elapsed_time = time.time() - start_time
-                    print(f"Experiment completed in {elapsed_time:.2f} seconds for input {input_kwargs}.")
-                
-            except Exception as e:
-                print(f"Error running experiment for input {input_kwargs}: {str(e)}")
-                continue
-
-
+        # Use multiprocessing Pool to parallelize the experiments
+        with Pool(processes=min(6, len(self.config.inputs))) as pool:
+            results = pool.map(self._run_single_experiment, self.config.inputs)
+            
+        # Print results after all experiments are done
+        for result in results:
+            print(result)

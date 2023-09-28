@@ -136,8 +136,8 @@ def get_data(p: int, diff: np.array):
 
     new_row = [[p, max_error, min_error, max_index, min_index]]
     
-    path = os.path.join("/Users", "jcheigh", 'Thesis')
-    csv_name = f"{path}/data.csv"
+    path = os.path.join("/Users", "jcheigh", 'Thesis', 'data')
+    csv_name = f"{path}/raw_error.csv"
 
     with open(csv_name, "a", newline="") as csv_file:
         csv_writer = csv.writer(csv_file)

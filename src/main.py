@@ -43,5 +43,5 @@ def main(prime_list, multithread = True, num_processes = 6):
         process_primes(prime_list)
 
 if __name__ == "__main__":
-    prime_list = sample_primes(4)
-    main(prime_list, multithread = False)
+    prime_list = sample_primes(8)
+    main(prime_list, multithread = True)
