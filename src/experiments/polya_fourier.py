@@ -69,7 +69,7 @@ def get_random_primes(n):
     return random.sample(filtered_primes, n)
 
 if __name__ == "__main__":
-    primes = get_random_primes(6)
+    primes = get_random_primes(8)
     config = Config(
             run_instance    = PolyaFourier(),
             inputs          = [{"p" : p} for p in primes],
