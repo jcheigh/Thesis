@@ -22,13 +22,12 @@ def test_sum(p, n):
 def test(p):
     for n in range(1, floor(ln(p)**2) + 1):
         print('=' * 15)
-        result = test_sum(p, n)
+        result = test_sum(p, n)s
         print(f"n = {n}, result = {result}")
 
 if __name__ == "__main__":
     primes = [104729]
     for prime in primes:
         if prime % 4 == 1:
-            print(f"Testing Prime = {prime}")
-            print("=" * 20)
+            print(f"Testing Prime = {prime}")ç
             test(prime)

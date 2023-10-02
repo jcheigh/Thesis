@@ -33,7 +33,7 @@ class CharacterSum(Run):
                 return False 
         
         return True 
-     
+
 if __name__ == "__main__":
     primes = sample_primes(100)
     config = Config(
