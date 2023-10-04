@@ -56,11 +56,16 @@ def get_primes_from_filename(path):
 def filter_primes():
     char_sum_path = f"{DATA_PATH}/char sum lists/"
     error_plot_path = f"{PLOT_PATH}/error plots/"
+    fourier_path   = f"{DATA_PATH}/polya fourier lists/"
+
     primes = get_primes_from_filename(char_sum_path)
     
     for prime in primes.copy():  # iterate over a copy of the list so we can modify the original list
-        filename_to_check = f"p = {prime} error plot.png"
+        filename_to_check = f"p = {prime} error plot.jpg"
         if filename_to_check in os.listdir(error_plot_path):
+            primes.remove(prime)
+        filename_to_check = f"p = {prime} fourier exp list.txt"
+        if filename_to_check in os.listdir(fourier_path):
             primes.remove(prime)
     return primes
 
