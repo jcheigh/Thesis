@@ -20,8 +20,11 @@ class PolyaFourier(Run):
     required = ['p']
     
     def main(self, p: int, x_min: int = 0, x_max: int = None, H: int = None) -> list:
-        return Fourier_Expansion(p, x_min, x_max, H)
-        
+        try:
+            return Fourier_Expansion(p, H)
+        except Exception as e:
+            print(e)
+
 
     def validate_inputs(self, p: int, x_min: int = 0, x_max: int = None, H: int = None):
         if not is_prime(p):
@@ -62,19 +65,21 @@ def filter_primes():
     
     for prime in primes.copy():  # iterate over a copy of the list so we can modify the original list
         filename_to_check = f"p = {prime} error plot.jpg"
+        remove = False
         if filename_to_check in os.listdir(error_plot_path):
-            primes.remove(prime)
+            remove = True
         filename_to_check = f"p = {prime} fourier exp list.txt"
-        if filename_to_check in os.listdir(fourier_path):
+        if filename_to_check in os.listdir(fourier_path) or remove:
             primes.remove(prime)
     return primes
 
 def get_random_primes(n):
     filtered_primes = filter_primes()
-    return random.sample(filtered_primes, n)
+
+    return random.sample(filtered_primes, min(n, len(filtered_primes)))
 
 if __name__ == "__main__":
-    primes = get_random_primes(8)
+    primes = get_random_primes(100)
     config = Config(
             run_instance    = PolyaFourier(),
             inputs          = [{"p" : p} for p in primes],

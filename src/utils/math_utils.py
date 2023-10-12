@@ -65,7 +65,7 @@ def get_prime_range(p_min: int, p_max: int) -> list:
     
     return [primes(k) for k in range(k_min, k_max + 1)] 
 
-def sample_primes(n: int, p_min: int = 100000, p_max: int = 200000):
+def sample_primes(n: int, p_min: int = 100000, p_max: int = 200000, mod= None):
     """
     Returns list of n primes sampled from primes s.t. p_min <= p <= p_max
 
@@ -74,6 +74,9 @@ def sample_primes(n: int, p_min: int = 100000, p_max: int = 200000):
         p_max: 200000
     """
     prime_list = get_prime_range(p_min, p_max)
+
+    if mod is not None:
+        prime_list = [prime for prime in prime_list if prime % 4 == mod]
 
     try:
         return random.sample(prime_list, n)
@@ -106,19 +109,53 @@ def S(p: int, x_min: int = 0, x_max: int = None) -> list:
         val = result[-1] + legendre(x, p)
         result.append(val)
     
-    return result
+    return np.array(result)
 
-def T(x: int, p: int) -> float: 
+def Fourier_Expansion(p: int, H = None) -> list:
     """
-    Returns T_p(x) := sin(x) iff p % 4 == 1 else 1 - cos(x)
-    T(x) in Leo's Desmos 
+    Returns [S_p(x_min),...,S_p(x_max)], where S_p(x) is main term of Polya's 
+    Fourier Expansion with H = H
 
-    Used in Fourier_Expansion function (see below)
+    Defaults:
+        H     = floor(ln(p)^2)
+
+    Uses Leo's idea of pairing up sums (S_p(-x) + S_p(x))
+    Derivation in Justin Cheigh's .tex documentation 
+
+    Also uses np vectorization, which speeds everything dramatically 
+        before p = 196993 probably took almost an hour. Now it's ~.5 seconds 
+
+    The idea is to precompute:
+        reciprocals = [1/1, 1/2, 1/3, ..., 1/H] 
+        leg_symbols = [legendre(1, p), ..., legendre(H, p)]
+        T is a p x H matrix where the kth row is [T(2pi k/p), ..., T(2pi Hk/p)]
+            Here T(x) = sin(x) if p == 1 mod 4 else 1 - cos(x)
+
+        Then sqrt(p)/pi * reciprocals * leg_symbols can just be matrix multiplied with
+        T transposed to get the desired result.
     """
-    return sin(x) if p % 4 == 1 else 1 - cos(x) # if p % 4 == 3
+    if H is None:
+        H = floor((ln(p)) ** 2)
+
+    xvals = np.arange(0, p)
+    nvals = np.arange(1, H + 1)
+    leg_symbols = np.array([legendre(n, p) for n in nvals])
+    reciprocals = 1.0 / nvals 
+
+    # T(x)
+    if p % 4 == 1: 
+        T_values = np.sin(2 * np.pi * np.outer(xvals, nvals) / p)
+    else:
+        T_values = 1 - np.cos(2 * np.pi * np.outer(xvals, nvals) / p)
+
+    Fp = np.sqrt(p) / np.pi * np.sum(leg_symbols * reciprocals * T_values, axis=1)
     
+    return Fp
+
+"""
+outdated because np vectorization is crazy crazy fast
+
 def Fourier_Expansion(p: int, x_min: int = 0, x_max = None, H = None) -> list:
-    """
     Returns [S_p(x_min),...,S_p(x_max)], where S_p(x) is main term of Polya's 
     Fourier Expansion with H = H
 
@@ -129,7 +166,6 @@ def Fourier_Expansion(p: int, x_min: int = 0, x_max = None, H = None) -> list:
 
     Uses Leo's idea of pairing up sums (S_p(-x) + S_p(x))
     Derivation in Justin Cheigh's .tex documentation 
-    """
     if x_max is None:
         x_max = p - 1
     
@@ -145,6 +181,7 @@ def Fourier_Expansion(p: int, x_min: int = 0, x_max = None, H = None) -> list:
         result.append(main_term.n())             
         
     return result       
+"""
 
 def get_data(p: int, diff: np.array):
     ### writing data to csv file
@@ -283,5 +320,36 @@ def add_data(p: int):
         get_data(p, diff)
 
 if __name__ == "__main__":
-    print(is_prime(10000))
-    print(is_prime(10007))
+    start = time.time()
+    lst = Fourier_Expansion(7231013)   
+    end = time.time()
+    print(end-start)
+    char = S(7231013)
+    data = lst - char 
+    prime = 7231013
+    fig, ax = plt.subplots(figsize=(20,10))
+    x = list(range(0, prime))
+    ax.plot(x, data, label="S_p(x) - Fourier Exp(x)")
+
+    mean, sd = np.mean(data), np.std(data)
+    largest, smallest = max(data), min(data)
+    
+    ax.axhline(y=mean, color='black', linestyle='--', label=f"Mean(E_p(x)) = {round(mean, 3)}")
+    ax.axhline(y=mean + sd, color='r', linestyle='--', label=f"+1 SD = {round(mean,3)} + {round(sd, 3)}")
+    ax.axhline(y=mean - sd, color='r', linestyle='--', label=f"-1 SD = {round(mean,3)} - {round(sd, 3)}")
+    ax.axhline(y=largest, color='blue', linestyle='--', label=f"Max(E_p(x)) = {round(largest, 3)}")
+    ax.axhline(y=smallest, color='blue', linestyle='--', label=f"Min(E_p(x)) = {round(smallest,3)}")
+
+    error_term = floor(ln(prime))
+    ax.axhline(y=error_term, color='green', linestyle='--', label="Log Error")
+    ax.axhline(y=-1 * error_term, color='green', linestyle='--')
+
+    ax.legend(bbox_to_anchor=(1, 1))
+    ax.set_xlabel("x")
+    ax.set_ylabel('error')
+    ax.set_title(f"p = {prime} Error Plot (p = {prime % 4} mod 4)")
+    MAIN_PATH = os.path.join("/Users", "jcheigh", "Thesis")
+    PLOT_PATH = os.path.join(MAIN_PATH, "plots")
+    path = f"{PLOT_PATH}/error plots/p = {prime} error plot.jpg"
+
+    fig.savefig(path)

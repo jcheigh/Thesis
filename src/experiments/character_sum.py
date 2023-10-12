@@ -35,7 +35,7 @@ class CharacterSum(Run):
         return True 
 
 if __name__ == "__main__":
-    primes = sample_primes(5, 10000000, 50000000)
+    primes = sample_primes(32, 1000000, 2000000)
     config = Config(
             run_instance    = CharacterSum(),
             inputs          = [{"p" : p} for p in primes],
