@@ -16,6 +16,17 @@ MAIN_PATH = os.path.join("/Users", "jcheigh", "Thesis")
 DATA_PATH = os.path.join(MAIN_PATH, "data")
 PLOT_PATH = os.path.join(MAIN_PATH, "plots")
 
+
+
+
+
+
+
+
+
+
+
+
 primes = sample_primes(500, 500, 2000, mod=3)
 print('Finished sampling primes')
 means = []

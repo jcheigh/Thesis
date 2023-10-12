@@ -123,12 +123,16 @@ class Experiment:
             return f"Error running experiment for input {input_kwargs}: {str(e)}"
         
     def run(self, multithread=True):
-        if multithread:
-            print(f'=== Using Multiprocessing ===')
-            # Use multiprocessing Pool to parallelize the experiments
-            with Pool(processes=min(6, len(self.config.inputs))) as pool:
-                results = pool.map(self._run_single_experiment, self.config.inputs)
-        else:
-            print(f'=== Not Using Multiprocessing ===')
-            for input_kwargs in tqdm(self.config.inputs):
-                self._run_single_experiment(input_kwargs)
+        try:
+            if multithread:
+                print(f'=== Using Multiprocessing ===')
+                # Use multiprocessing Pool to parallelize the experiments
+                with Pool(processes=min(6, len(self.config.inputs))) as pool:
+                    results = pool.map(self._run_single_experiment, self.config.inputs)
+            else:
+                print(f'=== Not Using Multiprocessing ===')
+                for input_kwargs in tqdm(self.config.inputs):
+                    self._run_single_experiment(input_kwargs)
+        
+        except Exception as e:
+            print(f"Exception in Experiment: {e}")
