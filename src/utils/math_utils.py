@@ -106,7 +106,7 @@ def S(p: int, x_min: int = 0, x_max: int = None) -> list:
     
     return np.array(result)
 
-def Fourier_Expansion(p: int, H = None) -> list:
+def Fourier_Expansion(p: int, H = None, half=False) -> list:
     """
     Returns [S_p(x_min),...,S_p(x_max)], where S_p(x) is main term of Polya's 
     Fourier Expansion with H = H
@@ -132,7 +132,11 @@ def Fourier_Expansion(p: int, H = None) -> list:
     if H is None:
         H = floor((ln(p)) ** 2)
 
-    xvals = np.arange(0, p)
+    if half:
+        xvals = np.arange(0, (p-1)//2 + 1)
+    else:
+        xvals = np.arange(0, p)
+
     nvals = np.arange(1, H + 1)
     leg_symbols = np.array([legendre(n, p) for n in nvals])
     reciprocals = 1.0 / nvals 
@@ -144,6 +148,12 @@ def Fourier_Expansion(p: int, H = None) -> list:
         T_values = 1 - np.cos(2 * np.pi * np.outer(xvals, nvals) / p)
 
     Fp = np.sqrt(p) / np.pi * np.sum(leg_symbols * reciprocals * T_values, axis=1)
+    
+    del T_values
+    del leg_symbols
+    del reciprocals
+    del nvals
+    del xvals
     
     return Fp
 
