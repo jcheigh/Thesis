@@ -25,25 +25,36 @@ from multiprocessing import Pool
 def compute_stats(args):
     p, half = args
     print(f'Analyzing Prime = {p}')
-    error_lst = S(p, half=half) - Fourier_Expansion(p, half=half)
+    char_lst = S(p, half=half) 
+    four_lst = Fourier_Expansion(p, half=half)
+    error_lst = char_lst - four_lst
     
     data = {
-        "prime"   : p, 
-        "max"     : np.max(error_lst),
-        "min"     : np.min(error_lst),
-        "mean"    : np.mean(error_lst),
-        "median"  : np.median(error_lst),
-        "std dev" : np.std(error_lst),
-        "x_max"   : np.argmax(error_lst),
-        "x_min"   : np.argmin(error_lst),
-        'half'    : half
+        "prime"             : p, 
+        "max"               : np.max(error_lst),
+        "min"               : np.min(error_lst),
+        "mean"              : np.mean(error_lst),
+        "median"            : np.median(error_lst),
+        "std dev"           : np.std(error_lst),
+        "x_max"             : np.argmax(error_lst),
+        "x_min"             : np.argmin(error_lst),
+        'half'              : half,
     }
+    indices = np.where(char_lst[1:] == char_lst[:-1] - 1)[0]
+    if len(indices) > 0:
+        pt = indices[0] + 1
+    else:
+        pt = "N/A" # couldn't find any
+
+    data["least quad nonres"] = pt
+
     del error_lst
 
     with open(PATH, 'a', newline='') as f:
         writer = csv.DictWriter(f, fieldnames=data.keys())
         writer.writerow(data)
 
+    del data
     print(f"Finished Analyzing Prime = {p}")
 
 def add_primes(primes, multithreading=True, half=False):
@@ -86,5 +97,5 @@ def get_primes(n, p_min, p_max):
 
 
 if __name__ == "__main__":
-    primes = get_primes(1000, 100000, 200000)
+    primes = get_primes(5000, 1000000, 3000000)
     add_primes(primes,multithreading=True, half=False)

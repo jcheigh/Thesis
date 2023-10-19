@@ -161,7 +161,12 @@ def Fourier_Expansion(p: int, H = None, half=False) -> list:
     
     return Fp
 
-if __name__ == "__main__":
-    primes = sample_primes(10, 5000000, 10000000)
-    for prime in tqdm(primes):
-        Fourier_Expansion(prime)
+if __name__ == "__main__": 
+    primes = sample_primes(3, mod=3)
+    for prime in primes:
+        error_lst = S(prime) - Fourier_Expansion(prime)
+        print(error_lst[:50])
+        print(prime)
+        print(max(max(error_lst), -1 * min(error_lst)))
+        print(floor(ln(prime) ** 2)**2)
+        print('=' * 15)
