@@ -4,8 +4,12 @@ from sage.all import kronecker, Primes, sin, cos, floor, pi, ln, prime_pi
 import numpy as np
 import matplotlib.pyplot as plt
 import random
+import math
 from tqdm import tqdm
+from scipy.special import comb
+from scipy.integrate import quad
 import time
+import seaborn as sns
 
 def legendre(a: int, p: int) -> int:
     """
@@ -110,7 +114,7 @@ def S(p: int, half=False) -> list:
     
     return np.array(result)
 
-def Fourier_Expansion(p: int, H = None, half=False) -> list:
+def Fourier_Expansion(p: int, H = None, half=False, start=1) -> list:
     """
     Returns [S_p(x_min),...,S_p(x_max)], where S_p(x) is main term of Polya's 
     Fourier Expansion with H = H
@@ -141,7 +145,7 @@ def Fourier_Expansion(p: int, H = None, half=False) -> list:
     else:
         xvals = np.arange(0, p)
 
-    nvals = np.arange(1, H + 1)
+    nvals = np.arange(start, H + 1)
     leg_symbols = np.array([legendre(n, p) for n in nvals])
     reciprocals = 1.0 / nvals 
 
@@ -161,12 +165,47 @@ def Fourier_Expansion(p: int, H = None, half=False) -> list:
     
     return Fp
 
-if __name__ == "__main__": 
-    primes = sample_primes(3, mod=3)
-    for prime in primes:
-        error_lst = S(prime) - Fourier_Expansion(prime)
-        print(error_lst[:50])
-        print(prime)
-        print(max(max(error_lst), -1 * min(error_lst)))
-        print(floor(ln(prime) ** 2)**2)
-        print('=' * 15)
+def scatter(x, y, xlabel, ylabel, title=None):
+    # both numeric
+    plt.figure(figsize=(10, 8))
+    sns.set(style='ticks')
+    sns.set_context("poster")
+
+    if title is None:
+        title = f"{ylabel} by {xlabel}"
+    
+    p = sns.regplot(x=x, y=y)
+        
+    p.axes.set_title(title, fontsize=25)
+    plt.ylabel(ylabel, fontsize=20)
+    plt.xlabel(xlabel, fontsize=20)
+    plt.show()
+    return p
+
+def histplot(x, bins=30, xlabel=None, title=None):
+    # distribution of numerical
+    plt.figure(figsize = (10,8))
+    p = sns.histplot(x, bins=bins, kde=True, fill=True,
+                    edgecolor="black", linewidth=3
+                    )
+
+    p.axes.lines[0].set_color("orange")
+    
+    if xlabel is None:
+        xlabel = str(x)
+        
+    if title is None:
+        title = f"{xlabel} Distribution"
+    
+    plt.ylabel("Count", fontsize = 20)
+    plt.xlabel(xlabel, fontsize = 20)
+    plt.title(title, fontsize = 25)
+    plt.show()
+
+if __name__ == "__main__":
+    p = 1009
+    H_range = list(range(1, p, 5))
+    char_sum = S(p)
+    for H in H_range:
+        error = char_sum - Fourier_Expansion(p, H)
+        print(f'H: {H}, {error[105]}')

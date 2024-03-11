@@ -39,6 +39,7 @@ def compute_stats(args):
         "x_max"             : np.argmax(error_lst),
         "x_min"             : np.argmin(error_lst),
         'half'              : half,
+        'mae'               : sum(abs(error_lst - np.mean(error_lst)))/ len(error_lst)
     }
     indices = np.where(char_lst[1:] == char_lst[:-1] - 1)[0]
     if len(indices) > 0:
@@ -57,10 +58,10 @@ def compute_stats(args):
     del data
     print(f"Finished Analyzing Prime = {p}")
 
-def add_primes(primes, multithreading=True, half=False):
+def add_primes(primes, multithreading=True, half=False, num_processes=5):
     
     if multithreading:
-        with Pool(processes=5) as pool:
+        with Pool(processes=num_processes) as pool:
             pool.map(compute_stats, [(p, half) for p in primes])
     else:
         for p in primes:
@@ -97,5 +98,5 @@ def get_primes(n, p_min, p_max):
 
 
 if __name__ == "__main__":
-    primes = get_primes(5000, 1000000, 3000000)
-    add_primes(primes,multithreading=True, half=False)
+    primes = get_primes(500, 500000, 750000)
+    add_primes(primes,multithreading=True, half=False, num_processes=5)

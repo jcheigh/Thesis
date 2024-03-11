@@ -46,11 +46,9 @@ class Run(ABC):
             
         # Get the output from main
         output = self.main(**kwargs)
-        
         # Compute the filename using the lambda function
         filename = self.name(**kwargs)
         full_path = os.path.join(self.path, f"{filename}.txt")
-        
         # Write the output to the file
         with open(full_path, "w") as f:
             for item in output:
@@ -70,8 +68,10 @@ class Run(ABC):
         if not self.validate_inputs(**kwargs):
             raise ValueError("Inputs validation failed.")
         
-        self.write_output(**kwargs)
-
+        try:
+            self.write_output(**kwargs)
+        except Exception as e:
+            print(f"Exception in execute: {e}.")
 class Config:
     """
     Configuration for each Experiment
@@ -111,14 +111,13 @@ class Experiment:
         print(f'Running experiment on {input_kwargs}')
         try:
             start_time = time.time() if self.config.time_experiment else None
-                
             # Calling the execute method of the run_instance
             self.config.run_instance.execute(**input_kwargs)
-                
+
             if self.config.time_experiment:
                 elapsed_time = time.time() - start_time
-                return f"Experiment completed in {elapsed_time:.2f} seconds for input {input_kwargs}."
-                
+                print(f"Experiment completed in {elapsed_time:.2f} seconds for input {input_kwargs}.")
+                return f"Experiment completed in {elapsed_time:.2f} seconds for input {input_kwargs}."   
         except Exception as e:
             return f"Error running experiment for input {input_kwargs}: {str(e)}"
         
