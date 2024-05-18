@@ -202,10 +202,57 @@ def histplot(x, bins=30, xlabel=None, title=None):
     plt.title(title, fontsize = 25)
     plt.show()
 
+def prime_generator(limit):
+    """Generate prime numbers up to 'limit' using the Sieve of Eratosthenes."""
+    sieve = [True] * (limit + 1)
+    for start in range(2, int(limit**0.5) + 1):
+        if sieve[start]:
+            for i in range(start*start, limit + 1, start):
+                sieve[i] = False
+    for number in range(2, limit + 1):
+        if sieve[number]:
+            yield number
+
 if __name__ == "__main__":
-    p = 1009
-    H_range = list(range(1, p, 5))
-    char_sum = S(p)
-    for H in H_range:
-        error = char_sum - Fourier_Expansion(p, H)
-        print(f'H: {H}, {error[105]}')
+    s_vals = [.1, .2, .3, .4, .5, .6, .7, .8, .9]
+    num_terms = 100000
+    prime = 1009
+    leg_vals = [legendre(a, prime) for a in range(prime)] # leg(0), leg(1), ... leg(1008)
+    leg_vals[0] = 0
+    def L(s, chi=leg_vals, num_terms=1000000):
+        res = 0
+        for n in tqdm(range(1, num_terms + 1)):
+            res += (chi[n % prime] / (n ** s))
+        
+        return res
+    
+    def logEulerProd(s, chi=leg_vals, num_terms=1000000):
+        res = 0
+        for p in prime_generator(num_terms):
+            term = chi[p % prime] / (p ** s)
+            if term != 1:
+                res -= np.log(1 - term)
+
+        return res
+
+    s_vals = np.linspace(.45, 1, 30)
+    L_values = []
+    EP_values = []
+
+    for s in tqdm(s_vals):
+        L_val = L(s)
+        EP_val = np.exp(logEulerProd(s))
+        L_values.append(L_val)
+        EP_values.append(EP_val)
+
+    ratios = np.array(EP_values) / np.array(L_values)
+    # Plotting
+    plt.figure(figsize=(10, 5))
+    plt.plot(s_vals, ratios, label='EP/L(s)', marker='o')
+    plt.plot(s_vals, 1/ np.sin(np.pi * s_vals / 2))
+    plt.xlabel('s')
+    plt.ylabel('Euler Product / L(s) (Chi = Legendre(., 1009))')
+    plt.title('Ratio of Euler Product to L-series over s')
+    plt.legend()
+    plt.grid(True)
+    plt.show()
